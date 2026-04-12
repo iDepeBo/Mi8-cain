@@ -19,7 +19,7 @@ window.calculateBallistics = function() {
     // 2. Расстояние (коэффициент 2.88)
     const dx = p2.lng - p1.lng;
     const dy = p2.lat - p1.lat;
-    const dist = Math.sqrt(dx * dx + dy * dy) * 2.88; 
+    const dist = Math.sqrt(dx * dx + dy * dy) * 2.945; 
 
     // 3. Расчет отклонения (Старая система)
     const v = 381.5; 
