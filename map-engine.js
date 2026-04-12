@@ -15,6 +15,37 @@ L.imageOverlay('map.png', bounds).addTo(map);
 // Принудительно вписываем карту в экран при старте
 map.fitBounds(bounds);
 
+// --- БЛОК СЕТКИ ---
+function createGrid() {
+    const gridLayer = L.layerGroup();
+    // Рассчитываем шаг: 1000 метров делим на твой коэффициент 2.88
+    const step = 1000 / 2.9; 
+    
+    // Вертикальные линии и цифры (X)
+    for (let x = 0; x <= 4200; x += step) {
+        L.polyline([[0, x], [4200, x]], { color: 'rgba(255,255,255,0.3)', weight: 1 }).addTo(gridLayer);
+        let labelX = Math.floor((x * 2.88) / 1000).toString().padStart(2, '0');
+        L.marker([20, x + 5], {
+            icon: L.divIcon({ className: 'grid-label', html: labelX, iconSize:[30, 20] }),
+            interactive: false
+        }).addTo(gridLayer);
+    }
+
+    // Горизонтальные линии и цифры (Y)
+    for (let y = 0; y <= 4200; y += step) {
+        L.polyline([[y, 0], [y, 4200]], { color: 'rgba(255,255,255,0.3)', weight: 1 }).addTo(gridLayer);
+        let labelY = Math.floor((y * 2.88) / 1000).toString().padStart(2, '0');
+        L.marker([y + 5, 20], {
+            icon: L.divIcon({ className: 'grid-label', html: labelY, iconSize:[30, 20] }),
+            interactive: false
+        }).addTo(gridLayer);
+    }
+    return gridLayer;
+}
+
+const grid = createGrid().addTo(map);
+// --- КОНЕЦ БЛОКА СЕТКИ ---
+
 
 // Иконка вертолета (вид сверху, 6 лопастей, с поддержкой вращения)
 const getHeliIcon = (angle = 0) => L.divIcon({
