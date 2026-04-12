@@ -16,10 +16,16 @@ window.calculateBallistics = function() {
     if (course < 0) course += 360; 
     document.getElementById('courseInfo').innerHTML = `Курс на цель: <b>${course}°</b>`;
 
-    // 2. Расстояние (коэффициент 2.88)
-    const dx = p2.lng - p1.lng;
-    const dy = p2.lat - p1.lat;
-    const dist = Math.sqrt(dx * dx + dy * dy) * 2.945; 
+    // --- КАЛИБРОВКА ОСЕЙ ---
+    const kX = 2.994;   
+    const kY = 2.952;  
+
+    const dx = (p2.lng - p1.lng) * kX;
+    const dy = (p2.lat - p1.lat) * kY;
+    
+    const dist = Math.sqrt(dx * dx + dy * dy); 
+
+
 
     // 3. Расчет отклонения (Старая система)
     const v = 381.5; 

@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <canvas id="heightCanvas" style="display:none;"></canvas>
+
     <div id="map"></div>
     <div id="sidebar">
         <h2>Ми-8 "CAIN"</h2>
@@ -57,5 +59,12 @@
     </div>
     <script src="map-engine.js"></script>
     <script src="ballistics.js"></script>
+
+<!-- Кнопка -->
+<button onclick="toggleRuler()" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; padding: 10px; background: #222; color: #1abc9c; border: 2px solid #1abc9c; font-weight: bold; cursor: pointer;">ЛИНЕЙКА (1 км)</button>
+
+
+<!-- Линейка (появится в центре) -->
+
 </body>
 </html>

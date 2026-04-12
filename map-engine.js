@@ -15,36 +15,38 @@ L.imageOverlay('map.png', bounds).addTo(map);
 // Принудительно вписываем карту в экран при старте
 map.fitBounds(bounds);
 
-// --- БЛОК СЕТКИ ---
+// --- ЕДИНЫЙ БЛОК СЕТКИ (РАЗДЕЛЬНЫЙ МАСШТАБ) ---
 function createGrid() {
     const gridLayer = L.layerGroup();
-    // Рассчитываем шаг: 1000 метров делим на твой коэффициент 2.88
-    const step = 1000 / 2.9; 
+    
+    // Отдельные шаги: 1000 метров делим на коэффициенты осей
+    const stepX = 1000 / 2.994;  // Горизонталь
+    const stepY = 1000 / 2.952; // Вертикаль
     
     // Вертикальные линии и цифры (X)
-    for (let x = 0; x <= 4200; x += step) {
+    for (let x = 0; x <= 4200; x += stepX) {
         L.polyline([[0, x], [4200, x]], { color: 'rgba(255,255,255,0.3)', weight: 1 }).addTo(gridLayer);
         let labelX = Math.floor((x * 2.88) / 1000).toString().padStart(2, '0');
         L.marker([20, x + 5], {
-            icon: L.divIcon({ className: 'grid-label', html: labelX, iconSize:[30, 20] }),
+            icon: L.divIcon({ className: 'grid-label', html: labelX, iconSize: [30, 20] }),
             interactive: false
         }).addTo(gridLayer);
     }
 
     // Горизонтальные линии и цифры (Y)
-    for (let y = 0; y <= 4200; y += step) {
+    for (let y = 0; y <= 4200; y += stepY) {
         L.polyline([[y, 0], [y, 4200]], { color: 'rgba(255,255,255,0.3)', weight: 1 }).addTo(gridLayer);
-        let labelY = Math.floor((y * 2.88) / 1000).toString().padStart(2, '0');
+        let labelY = Math.floor((y * 2.945) / 1000).toString().padStart(2, '0');
         L.marker([y + 5, 20], {
-            icon: L.divIcon({ className: 'grid-label', html: labelY, iconSize:[30, 20] }),
+            icon: L.divIcon({ className: 'grid-label', html: labelY, iconSize: [30, 20] }),
             interactive: false
         }).addTo(gridLayer);
     }
     return gridLayer;
 }
-
 const grid = createGrid().addTo(map);
 // --- КОНЕЦ БЛОКА СЕТКИ ---
+
 
 
 // Иконка вертолета (вид сверху, 6 лопастей, с поддержкой вращения)
@@ -144,4 +146,76 @@ window.getElevation = function(latlng) {
         const pixel = hCtx.getImageData(x, y, 1, 1).data;
         return Math.round((pixel[0] / 255) * 250); 
     } catch (e) { return 0; }
+};
+window.rulerLayer = null;
+
+window.toggleRuler = function() {
+    if (window.rulerLayer) {
+        map.removeLayer(window.rulerLayer);
+        window.rulerLayer = null;
+        return;
+    }
+
+    const center = map.getCenter();
+    const length = 1000 / 2.994// 1 км в пикселях карты
+    window.rulerLayer = L.layerGroup().addTo(map);
+
+    // Создаем невидимый, но перетаскиваемый маркер-основу
+    const draggableAnchor = L.marker(center, {
+        draggable: true,
+        icon: L.divIcon({
+            className: 'ruler-anchor',
+            html: '<div style="width: 100px; height: 40px; margin-left: -50px; margin-top: -20px; cursor: move;"></div>',
+            iconSize: [100, 40]
+        })
+    }).addTo(window.rulerLayer);
+
+    // Функция отрисовки графики линейки относительно маркера
+    const drawRulerParts = (latlng) => {
+        // Очищаем старые линии внутри группы, кроме самого маркера
+        window.rulerLayer.eachLayer(layer => {
+            if (layer !== draggableAnchor) window.rulerLayer.removeLayer(layer);
+        });
+
+        const startLng = latlng.lng - (length / 2);
+        const endLng = latlng.lng + (length / 2);
+
+        // Черная база
+        L.polyline([[latlng.lat, startLng], [latlng.lat, endLng]], {
+            color: '#000', weight: 10, opacity: 0.8, interactive: false
+        }).addTo(window.rulerLayer);
+
+        // Засечки и текст
+        for (let i = 0; i <= 10; i++) {
+            const curLng = startLng + (length * (i / 10));
+            const isMajor = (i % 5 === 0);
+            const h = isMajor ? 12 : 6;
+
+            L.polyline([
+                [latlng.lat - h, curLng], 
+                [latlng.lat + h, curLng]
+            ], { color: '#fff', weight: 2, interactive: false }).addTo(window.rulerLayer);
+
+            if (isMajor) {
+                L.marker([latlng.lat - 25, curLng], {
+                    icon: L.divIcon({
+                        className: 'grid-label',
+                        html: `<b style="color:white; text-shadow: 1px 1px 3px black;">${i * 100}m</b>`,
+                        iconSize: [40, 20]
+                    }),
+                    interactive: false
+                }).addTo(window.rulerLayer);
+            }
+        }
+    };
+
+    // Отрисовываем первый раз
+    drawRulerParts(center);
+
+    // При движении маркера перерисовываем всю линейку за ним
+    draggableAnchor.on('drag', (e) => {
+        drawRulerParts(e.latlng);
+    });
+    
+    console.log("Линейка готова. Хватай за центр и тащи!");
 };
