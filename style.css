@@ -1,0 +1,104 @@
+html, body { height: 100%; margin: 0; padding: 0; }
+body { display: flex; background: #1a1a1a; color: #ecf0f1; font-family: sans-serif; overflow: hidden; }
+
+#map { flex-grow: 1; height: 100vh; background: #111; cursor: crosshair; }
+
+#sidebar { 
+    width: 320px; height: 100vh; padding: 20px; 
+    background: #2c3e50; border-left: 2px solid #34495e; 
+    box-sizing: border-box; z-index: 1000; 
+}
+
+.res-box { background: #16a085; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 5px solid #1abc9c; }
+
+input { 
+    width: 100%; padding: 10px; margin: 5px 0 15px 0; 
+    background: #34495e; border: 1px solid #1abc9c; 
+    color: white; border-radius: 4px; box-sizing: border-box; 
+}
+
+#resetBtn {
+    width: 100%; padding: 10px; margin-top: 15px;
+    background: #e74c3c; color: white; border: none;
+    border-radius: 4px; cursor: pointer; font-weight: bold;
+}
+#resetBtn:hover { background: #c0392b; }
+
+h2 { color: #1abc9c; margin: 0; font-size: 1.5em; }
+label { font-size: 0.85em; color: #bdc3c7; }
+canvas#trajCanvas { background: #000; border-radius: 4px; border: 1px solid #34495e; margin-top: 5px; }
+#map { height: 100vh; width: 100%; background: #111; }
+
+.line-label {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #1abc9c;
+    color: #1abc9c;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 2px 5px;
+}
+/* Стиль для подписи дистанции на карте */
+.dist-label {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid #1abc9c !important;
+    color: #1abc9c !important;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+#map { 
+    flex-grow: 1; 
+    height: 100vh; 
+    background: #000; /* Цвет за пределами картинки */
+    cursor: crosshair; 
+}
+
+/* Убираем серую рамку вокруг самой картинки, если она есть */
+.leaflet-container {
+    background-color: #000 !important;
+}
+.input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px; }
+.btn-col { display: flex; flex-direction: column; gap: 4px; }
+.btn-row { display: flex; gap: 4px; }
+.btn-row button { 
+    flex: 1; padding: 4px 2px; font-size: 10px; cursor: pointer;
+    background: #34495e; color: #1abc9c; border: 1px solid #1abc9c; border-radius: 2px;
+}
+.btn-row button:hover { background: #1abc9c; color: #fff; }
+/* Длинная ножка-конус для подписей */
+.leaflet-tooltip-top:before {
+    border-top-color: #ffffff !important;
+    border-width: 20px 4px 0 !important; /* Делаем ножку длинной и узкой */
+    margin-bottom: -20px !important;
+    left: 50%;
+    margin-left: -4px;
+}
+
+.leaflet-tooltip {
+    background: #000 !important;
+    color: #fff !important;
+    border: 1px solid #fff !important;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 0px; /* Квадратный армейский стиль */
+}
+/* Возвращаем стандартный стиль: белый фон, черный текст */
+.leaflet-tooltip {
+    background-color: #fff !important;
+    color: #000 !important;
+    border: 1px solid #444 !important; /* Тонкая темная рамка */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3) !important;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* Длинная ножка-игла (цвет совпадает с рамкой) */
+.leaflet-tooltip-top:before {
+    border-top-color: #444 !important; 
+    border-width: 35px 1px 0 !important; /* 35px - длина ножки */
+    margin-bottom: -35px !important;
+    left: 50%;
+    margin-left: -1px;
+}

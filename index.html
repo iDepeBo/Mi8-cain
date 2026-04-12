@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ми-8 CAIN</title>
+    <!-- Ссылки на твои файлы в папке -->
+    <link rel="stylesheet" href="leaflet.css" />
+    <script src="leaflet.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="map"></div>
+    <div id="sidebar">
+        <h2>Ми-8 "CAIN"</h2>
+       <!-- Блок высоты вертолета -->
+<label>Высота вертолета (м):</label>
+<div class="input-group">
+    <input type="number" id="hHeli" value="300">
+    <div class="btn-col">
+        <div class="btn-row">
+            <button onclick="changeVal('hHeli', 100)">+100</button>
+            <button onclick="changeVal('hHeli', 50)">+50</button>
+            <button onclick="changeVal('hHeli', 5)">+5</button>
+        </div>
+        <div class="btn-row">
+            <button onclick="changeVal('hHeli', -100)">-100</button>
+            <button onclick="changeVal('hHeli', -50)">-50</button>
+            <button onclick="changeVal('hHeli', -5)">-5</button>
+        </div>
+    </div>
+</div>
+
+<!-- Блок высоты цели -->
+<label>Высота цели (м):</label>
+<div class="input-group">
+    <input type="number" id="hTarget" value="0">
+    <div class="btn-col">
+        <div class="btn-row">
+            <button onclick="changeVal('hTarget', 20)">+20</button>
+            <button onclick="changeVal('hTarget', 5)">+5</button>
+        </div>
+        <div class="btn-row">
+            <button onclick="changeVal('hTarget', -20)">-20</button>
+            <button onclick="changeVal('hTarget', -5)">-5</button>
+        </div>
+    </div>
+</div>
+
+        <label>Тангаж (°):</label>
+        <input type="number" id="angle" value="0" step="0.1">
+        <div class="res-box" id="output" > 1. Клик на Ми-8<br>2. Клик на цель</div><div class="res-box" id="courseInfo" style="background: #2980b9; border-color: #3498db; margin-top: 10px;">
+    Курс на цель: --°
+</div>
+
+        <button id="resetBtn">СБРОСИТЬ</button>
+        <canvas id="trajCanvas" width="280" height="150" style="margin-top:20px;"></canvas>
+    </div>
+    <script src="map-engine.js"></script>
+    <script src="ballistics.js"></script>
+</body>
+</html>
