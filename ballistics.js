@@ -221,7 +221,7 @@ window.calculateBallistics = function() {
     const y = Math.round(hHeli - drop - hTarget);
 
     // 5. Вывод текста в синее окошко
-    document.getElementById('output').innerHTML = `
+    document.getElementById('outputText').innerHTML = `
         Дистанция: ${Math.round(dist)} м<br>
         Результат: <b>${Math.abs(y)} м ${y > 0 ? 'ВЫШЕ' : 'НИЖЕ'}</b>
     `;
@@ -261,5 +261,72 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.calculateBallistics) window.calculateBallistics();
     }, 500);
 });
+
+// --- ФУНКЦИОНАЛ НОВЫХ КНОПОК ---
+
+// 1. Кнопка-галочка: Применяет поправку к высоте
+// Функция для кнопки-галочки (Авто-коррекция высоты)
+window.applyCorrection = function() {
+    const hHeliInput = document.getElementById('hHeli');
+    const outputElement = document.getElementById('outputText');
+    
+    if (!outputElement || !hHeliInput) {
+        console.error("CAIN: Не найдены элементы интерфейса!");
+        return;
+    }
+
+    const text = outputElement.innerText;
+    // Ищем число и направление (ВЫШЕ/НИЖЕ) в тексте результата
+    const match = text.match(/(\d+)\s*м\s*(ВЫШЕ|НИЖЕ)/);
+    
+    if (match) {
+        const diff = parseInt(match[1]); // Число метров промаха
+        const direction = match[2];     // Слово ВЫШЕ или НИЖЕ
+        let currentHeli = parseInt(hHeliInput.value) || 0;
+
+        // Сама магия корректировки:
+        if (direction === 'НИЖЕ') {
+            hHeliInput.value = currentHeli + diff;
+        } else {
+            hHeliInput.value = currentHeli - diff;
+        }
+        
+        console.log(`CAIN: Скорректировано на ${diff}м ${direction}`);
+        
+        // Запускаем пересчет баллистики, чтобы результат стал 0м
+        window.calculateBallistics();
+    } else {
+        console.log("CAIN: Нечего корректировать, результат не найден в тексте");
+    }
+};
+
+
+// 2. Сброс только позиций (маркеров) на карте
+window.resetMarkers = function() {
+    // Удаляем объекты с карты, если они существуют
+    if (window.pHeli) map.removeLayer(window.pHeli);
+    if (window.pTarget) map.removeLayer(window.pTarget);
+    if (window.aimLine) map.removeLayer(window.aimLine);
+    
+    // Обнуляем переменные
+    window.pHeli = null;
+    window.pTarget = null;
+    window.aimLine = null;
+    
+    // Очищаем текстовое поле и график
+    document.getElementById('outputText').innerHTML = "1. Клик на Ми-8<br>2. Клик на цель";
+    const canvas = document.getElementById('trajCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    console.log("Маркеры сброшены");
+};
+
+// 3. Полный сброс (Кнопка ALL в углу)
+window.resetAll = function() {
+    // Просто перезагружаем страницу — это самый чистый способ сбросить всё
+    location.reload(); 
+};
 
 console.log("CAIN: Система управления готова к бою");
