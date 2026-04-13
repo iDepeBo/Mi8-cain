@@ -56,82 +56,87 @@ function drawTrajectory(dist, hH, hT, a, v, g) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    const p = 30; // Отступы
-    const w = canvas.width - p*2;
-    const h = canvas.height - p*2;
+    const pSide = 40, pBottom = 25; 
+    const w = canvas.width - pSide * 2;
+    const h = canvas.height - pBottom - 60; 
+    const viewH = 1000; 
 
-    // СТАТИЧНЫЙ МАСШТАБ: 
-    // За основу берем высоту 800м (твой лимит), чтобы земля всегда была в одной поре.
-    const viewHeight = 800; 
-
-    // --- 1. Линия МОРЯ (Синяя, 0м) ---
-    const seaY = canvas.height - p;
-    ctx.strokeStyle = "#3498db";
+    // 1. Море (Синее, 0м)
+    const seaY = canvas.height - pBottom;
+    ctx.strokeStyle = "rgba(52, 152, 219, 0.3)";
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(p, seaY);
-    ctx.lineTo(canvas.width - p, seaY);
+    ctx.moveTo(pSide, seaY); ctx.lineTo(canvas.width - pSide, seaY);
     ctx.stroke();
 
-    // --- 2. Линия ЗЕМЛИ (Зеленая, уровень цели) ---
-    // Теперь она будет стоять жестко относительно viewHeight
-    const landY = canvas.height - p - ((hT / viewHeight) * h);
-    ctx.strokeStyle = "#2ecc71";
-    ctx.setLineDash([5, 5]); // Сделаем её пунктирной для красоты
+    // 2. Земля (Зеленая пунктирная)
+    const landY = seaY - ((hT / viewH) * h);
+    ctx.strokeStyle = "rgba(46, 204, 113, 0.7)";
+    ctx.setLineDash([8, 5]); 
     ctx.beginPath();
-    ctx.moveTo(p, landY);
-    ctx.lineTo(canvas.width - p, landY);
+    ctx.moveTo(pSide, landY); ctx.lineTo(canvas.width - pSide, landY);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // --- 3. Траектория ракеты (с обрезкой об землю) ---
+    // 3. Фиксированный мини-вертолет
+    const fixedHeliY = 50; 
+    const hX = pSide + 15;
+    ctx.fillStyle = "white";
+    ctx.beginPath(); ctx.ellipse(hX, fixedHeliY, 10, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = "white";
+    ctx.beginPath(); ctx.moveTo(hX - 7, fixedHeliY); ctx.lineTo(hX - 20, fixedHeliY); ctx.lineTo(hX - 20, fixedHeliY - 6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(hX - 10, fixedHeliY - 3); ctx.lineTo(hX + 15, fixedHeliY - 3); ctx.stroke();
+
+    // 4. Траектория "Горбом вверх" и "Ложится на землю"
+    const startY = fixedHeliY + 4;
     ctx.strokeStyle = "#1abc9c";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    let started = false;
+    
+    // Определяем точку падения ракеты относительно вертолета
+    const dropAtTarget = (g * Math.pow(dist, 2)) / (2 * v * v);
+    
+    let lastX = pSide, lastY = startY;
 
-    for (let x = 0; x <= dist; x += dist/100) {
-        let currY = (x * Math.tan(a)) - (g * x**2) / (2 * v*v) + hH;
-        let dx = p + (x/dist)*w;
-        let dy = canvas.height - p - ((currY / viewHeight) * h);
+    for (let i = 0; i <= 100; i++) {
+        let x = (i / 100) * w;
+        let t = i / 100;
         
-        // ОБРЕЗКА: Если ракета опустилась ниже уровня земли цели - стоп
-        if (dy > landY) {
-            // Дорисовываем точку касания и выходим
-            ctx.lineTo(dx, landY);
-            break;
-        }
+        // Масштабируем падение: (g * (x_real)^2) / (2 * v^2)
+        // Чтобы парабола была "горбом вверх", мы вычитаем падение из линии броска
+        // В нашем случае бросок горизонтальный (угол 0), поэтому идет дуга вниз
+        let currentDrop = (g * Math.pow((i/100)*dist, 2)) / (2 * v * v);
+        let y = startY + (currentDrop / viewH) * h;
+        
+        // ОБРЕЗКА: Если парабола ушла ниже земли — она "ложится" на землю
+        if (y > landY) y = landY;
 
-        // Не рисуем, если вертолет ВЫШЕ потолка окна (просто ведем линию)
-        if (dy < 5) {
-            if (!started) { ctx.moveTo(dx, 5); started = true; }
-            else { ctx.lineTo(dx, 5); }
-        } else {
-            if (!started) { ctx.moveTo(dx, dy); started = true; }
-            else { ctx.lineTo(dx, dy); }
-        }
+        if (i === 0) ctx.moveTo(pSide, startY);
+        else ctx.lineTo(pSide + x, y);
+        
+        lastX = pSide + x;
+        lastY = y;
     }
     ctx.stroke();
 
-    // --- 4. Силуэт Ми-8 (Вид сбоку) ---
-    let heliY = canvas.height - p - ((hH / viewHeight) * h);
-    // Если вертолет улетел выше экрана, рисуем его у верхней кромки
-    let drawHeliY = Math.max(heliY, 15); 
-    
-    ctx.fillStyle = "#ecf0f1";
-    ctx.fillRect(p - 12, drawHeliY - 3, 20, 6); // Корпус
-    ctx.fillRect(p - 20, drawHeliY - 1, 10, 2); // Хвост
-    ctx.fillStyle = "#bdc3c7";
-    ctx.fillRect(p - 18, drawHeliY - 6, 32, 1); // Винт
+    // 5. Треугольники (Острые, крупные)
+    // Синий (Ракета - на конце параболы, даже если она лежит на земле)
+    ctx.fillStyle = "#3498db";
+    ctx.beginPath();
+    ctx.moveTo(lastX - 6, lastY - 18);
+    ctx.lineTo(lastX + 6, lastY - 18);
+    ctx.lineTo(lastX, lastY);
+    ctx.fill();
 
-    // --- 5. Силуэт ЦЕЛИ (Красный треугольник) ---
+    // Красный (Цель - вершиной упирается в пунктир)
     ctx.fillStyle = "#e74c3c";
     ctx.beginPath();
-    ctx.moveTo(canvas.width - p, landY);
-    ctx.lineTo(canvas.width - p - 6, landY + 10);
-    ctx.lineTo(canvas.width - p + 6, landY + 10);
+    ctx.moveTo(canvas.width - pSide - 6, landY + 18);
+    ctx.lineTo(canvas.width - pSide + 6, landY + 18);
+    ctx.lineTo(canvas.width - pSide, landY);
     ctx.fill();
 }
+
 
 ['hTarget'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => window.calculateBallistics());
