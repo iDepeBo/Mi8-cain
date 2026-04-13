@@ -50,27 +50,45 @@ const grid = createGrid().addTo(map);
 
 
 // Иконка вертолета (вид сверху, 6 лопастей, с поддержкой вращения)
-const getHeliIcon = (angle = 0) => L.divIcon({
-    className: 'heli-marker-container',
-    html:`<div style="transform: rotate(${angle}deg); transition: transform 0.1s;">
-    <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
-        <!-- Фюзеляж -->
-        <path d="M12 2L14.5 7V17L12 22L9.5 17V7L12 2Z" fill="#000" stroke="#fff" stroke-width="0.8""")/>>
-        <!-- 6 лопастей -->
-        <g stroke="#fff" stroke-width="0.6" opacity="0.9">
-            <line x1="12" y1="12" x2="12" y2="1""")/>>
-            <line x1="12" y1="12" x2="21.5" y2="6.5""")/>>
-            <line x1="12" y1="12" x2="21.5" y2="17.5""")/>>
-            <line x1="12" y1="12" x2="12" y2="23""")/>>
-            <line x1="12" y1="12" x2="2.5" y2="17.5""")/>>
-            <line x1="12" y1="12" x2="2.5" y2="6.5""")/>>
-        </g>
-        <circle cx="12" cy="12" r="1.2" fill="#fff""")/>>
-    </svg>
-</div>`,
-    iconSize: [80, 80],
-    iconAnchor: [40, 40]
-});
+function getHeliIcon(angle) {
+    // Цвет иконки (белый, чтобы гармонировал с твоим интерфейсом)
+    const color = "white"; 
+    
+    // SVG-код, повторяющий твой скриншот
+    const svgIcon = `
+        <svg xmlns="http://w3.org" viewBox="0 0 100 100" width="40" height="40">
+            <g transform="rotate(${angle} 50 50)">
+                <!-- Концентрические круги винта (тонкие) -->
+                <circle cx="50" cy="50" r="35" fill="none" stroke="${color}" stroke-width="0.5" opacity="0.3""")/>>
+                <circle cx="50" cy="50" r="45" fill="none" stroke="${color}" stroke-width="0.5" opacity="0.2""")/>>
+                
+                <!-- Лопасти (4 штуки) -->
+                <line x1="50" y1="50" x2="15" y2="15" stroke="${color}" stroke-width="2.5" />
+                <line x1="50" y1="50" x2="85" y2="15" stroke="${color}" stroke-width="2.5" />
+                <line x1="50" y1="50" x2="15" y2="85" stroke="${color}" stroke-width="2.5" />
+                <line x1="50" y1="50" x2="85" y2="85" stroke="${color}" stroke-width="2.5" />
+                
+                <!-- Хвостовая балка и стабилизатор -->
+                <rect x="48" y="50" width="4" height="40" fill="${color}" />
+                <rect x="35" y="80" width="30" height="3" fill="${color}" /> <!-- Стабилизатор -->
+                <rect x="52" y="85" width="8" height="2" fill="${color}" /> <!-- Хвостовой ротор -->
+                
+                <!-- Основной корпус (Фюзеляж) -->
+                <ellipse cx="50" cy="40" rx="12" ry="25" fill="${color}" />
+                
+                <!-- "Плечи" (двигатели) -->
+                <rect x="35" y="35" width="30" height="12" rx="4" fill="${color}" />
+            </g>
+        </svg>`;
+
+    return L.divIcon({
+        html: svgIcon,
+        className: 'heli-icon',
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
+}
+
 
 
 // Иконка цели (перекрестие)

@@ -94,13 +94,41 @@ function drawTrajectory(dist, hH, hT, a, v, g) {
     ctx.beginPath(); ctx.moveTo(pSide, landY); ctx.lineTo(canvas.width - pSide, landY); ctx.stroke();
     ctx.setLineDash([]);
 
-    // Мини-вертолет
-    const hX = pSide + 10;
+     // --- 3. ВЕРТОЛЕТ (МИНИАТЮРА ПО ТВОЕМУ ЭСКИЗУ) ---
+    const hX = pSide + 10; 
+    const hY = fixedHeliY;
+
     ctx.fillStyle = "white";
-    ctx.beginPath(); ctx.ellipse(hX, fixedHeliY, 8, 3, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.lineWidth = 1; ctx.strokeStyle = "white";
-    ctx.beginPath(); ctx.moveTo(hX - 5, fixedHeliY); ctx.lineTo(hX - 18, fixedHeliY); ctx.lineTo(hX - 18, fixedHeliY - 8); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(hX - 8, fixedHeliY - 3); ctx.lineTo(hX + 12, fixedHeliY - 3); ctx.stroke();
+    ctx.beginPath();
+    
+    // 1. Нос (микро-капля)
+    ctx.moveTo(hX + 3, hY - 1.5); 
+    ctx.quadraticCurveTo(hX + 11, hY + 0.3, hX + 3, hY + 2); 
+    
+    // 2. Фюзеляж и сужающаяся балка
+    ctx.lineTo(hX - 3, hY + 2);   
+    ctx.lineTo(hX - 15, hY + 0.3); 
+    
+    // 3. Хвостовой киль (короткий скос вверх)
+    ctx.lineTo(hX - 19, hY - 3.5);  
+    ctx.lineTo(hX - 16, hY - 3.5);  
+    ctx.lineTo(hX - 13, hY - 0.3);  
+    
+    // 4. "Горб" двигателя
+    ctx.lineTo(hX - 3, hY - 0.3);
+    ctx.lineTo(hX - 3, hY - 2);   
+    ctx.lineTo(hX + 3, hY - 2);   
+    ctx.closePath();
+    ctx.fill();
+
+    // 5. Тончайшая линия винта и мачта
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(hX - 16, hY - 3.5); ctx.lineTo(hX + 15, hY - 3.5); // Ротор
+    ctx.moveTo(hX - 1, hY - 2); ctx.lineTo(hX - 1, hY - 3.5);    // Мачта
+    ctx.stroke();
+
 
     // Траектория "из носа"
     const sX = hX + 0;
