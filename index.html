@@ -17,7 +17,7 @@
        <!-- Блок высоты вертолета -->
 <label>Высота вертолета (м):</label>
 <div class="input-group">
-    <input type="number" id="hHeli" value="300">
+    <input type="number" id="hHeli" value="0" oninput="calculateBallistics()">
     <div class="btn-col">
         <div class="btn-row">
             <button onclick="changeVal('hHeli', 100)">+100</button>
@@ -31,6 +31,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Блок высоты цели -->
 <label>Высота цели (м):</label>
